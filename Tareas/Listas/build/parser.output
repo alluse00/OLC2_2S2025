@@ -1,0 +1,157 @@
+State 0 conflicts: 2 shift/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: sequence '\n'
+    2        | program sequence '\n'
+    3        | program '\n'
+    4        | ε
+
+    5 sequence: element
+    6         | sequence COMMA element
+
+    7 element: DIGIT_TOKEN
+    8        | LETTER_TOKEN
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '\n' (10) 1 2 3
+    error (256)
+    DIGIT_TOKEN <character> (258) 7
+    LETTER_TOKEN <character> (259) 8
+    COMMA (260) 6
+
+
+Nonterminals, with rules where they appear
+
+    $accept (7)
+        on left: 0
+    program (8)
+        on left: 1 2 3 4
+        on right: 0 2 3
+    sequence (9)
+        on left: 5 6
+        on right: 1 2 6
+    element (10)
+        on left: 7 8
+        on right: 5 6
+
+
+State 0
+
+    0 $accept: • program $end
+
+    DIGIT_TOKEN   shift, and go to state 1
+    LETTER_TOKEN  shift, and go to state 2
+
+    DIGIT_TOKEN   [reduce using rule 4 (program)]
+    LETTER_TOKEN  [reduce using rule 4 (program)]
+    $default      reduce using rule 4 (program)
+
+    program   go to state 3
+    sequence  go to state 4
+    element   go to state 5
+
+
+State 1
+
+    7 element: DIGIT_TOKEN •
+
+    $default  reduce using rule 7 (element)
+
+
+State 2
+
+    8 element: LETTER_TOKEN •
+
+    $default  reduce using rule 8 (element)
+
+
+State 3
+
+    0 $accept: program • $end
+    2 program: program • sequence '\n'
+    3        | program • '\n'
+
+    $end          shift, and go to state 6
+    DIGIT_TOKEN   shift, and go to state 1
+    LETTER_TOKEN  shift, and go to state 2
+    '\n'          shift, and go to state 7
+
+    sequence  go to state 8
+    element   go to state 5
+
+
+State 4
+
+    1 program: sequence • '\n'
+    6 sequence: sequence • COMMA element
+
+    COMMA  shift, and go to state 9
+    '\n'   shift, and go to state 10
+
+
+State 5
+
+    5 sequence: element •
+
+    $default  reduce using rule 5 (sequence)
+
+
+State 6
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 7
+
+    3 program: program '\n' •
+
+    $default  reduce using rule 3 (program)
+
+
+State 8
+
+    2 program: program sequence • '\n'
+    6 sequence: sequence • COMMA element
+
+    COMMA  shift, and go to state 9
+    '\n'   shift, and go to state 11
+
+
+State 9
+
+    6 sequence: sequence COMMA • element
+
+    DIGIT_TOKEN   shift, and go to state 1
+    LETTER_TOKEN  shift, and go to state 2
+
+    element  go to state 12
+
+
+State 10
+
+    1 program: sequence '\n' •
+
+    $default  reduce using rule 1 (program)
+
+
+State 11
+
+    2 program: program sequence '\n' •
+
+    $default  reduce using rule 2 (program)
+
+
+State 12
+
+    6 sequence: sequence COMMA element •
+
+    $default  reduce using rule 6 (sequence)

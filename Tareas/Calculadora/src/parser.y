@@ -26,7 +26,6 @@ void yyerror(const char *s);
 /* Precedencias */
 %left '+' '-'
 %left '*' '/'
-%right UMINUS    /* Precedencia del menos unario */
 
 %%
 
@@ -43,17 +42,7 @@ line:
 
 expr:
     expr '+' expr   { $$ = $1 + $3; }
-  | expr '-' expr   { $$ = $1 - $3; }
   | expr '*' expr   { $$ = $1 * $3; }
-  | expr '/' expr   { 
-      if ($3 == 0) {
-          fprintf(stderr, "Error: División por cero en %d:%d\n", 
-                  @3.first_line, @3.first_column);
-          YYERROR;
-      }
-      $$ = $1 / $3; 
-  }
-  | '-' expr %prec UMINUS { $$ = -$2; }
   | '(' expr ')'    { $$ = $2; }
   | NUMBER          { $$ = $1; }
   ;

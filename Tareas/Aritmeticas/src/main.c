@@ -4,8 +4,9 @@
 int yyparse(void);
 
 int main(void) {
-    printf("Calculadora simple (Ctrl+D para salir)\n");
-    printf("Ingrese la operación (ej: 5+5)\n> ");
+    printf("Convertidor de notación postfija a infija (Ctrl+D para salir)\n");
+    printf("Ingrese expresiones en notación postfija separadas por espacios\n");
+    printf("Ejemplo: 3 4 + 5 *\n> ");
     if (yyparse() != 0) {
         fprintf(stderr, "Fallo en el parseo\n");
         return 1;

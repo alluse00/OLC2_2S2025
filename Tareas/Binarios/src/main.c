@@ -4,8 +4,8 @@
 int yyparse(void);
 
 int main(void) {
-    printf("Calculadora simple (Ctrl+D para salir)\n");
-    printf("Ingrese la operación (ej: 5+5)\n> ");
+    printf("Convertidor de números binarios a decimal (Ctrl+D para salir)\n");
+    printf("Ingrese números binarios (ej: 101.101)\n> ");
     if (yyparse() != 0) {
         fprintf(stderr, "Fallo en el parseo\n");
         return 1;

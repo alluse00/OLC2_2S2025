@@ -1,0 +1,177 @@
+State 0 conflicts: 6 reduce/reduce
+State 1 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: expression '\n'
+    2        | program expression '\n'
+    3        | program '\n'
+    4        | ε
+
+    5 expression: ε
+    6           | expression NUMBER
+    7           | expression PLUS
+    8           | expression MINUS
+    9           | expression MULTIPLY
+   10           | expression DIVIDE
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '\n' (10) 1 2 3
+    error (256)
+    NUMBER <num> (258) 6
+    PLUS (259) 7
+    MINUS (260) 8
+    MULTIPLY (261) 9
+    DIVIDE (262) 10
+
+
+Nonterminals, with rules where they appear
+
+    $accept (9)
+        on left: 0
+    program (10)
+        on left: 1 2 3 4
+        on right: 0 2 3
+    expression (11)
+        on left: 5 6 7 8 9 10
+        on right: 1 2 6 7 8 9 10
+
+
+State 0
+
+    0 $accept: • program $end
+
+    NUMBER    reduce using rule 4 (program)
+    NUMBER    [reduce using rule 5 (expression)]
+    PLUS      reduce using rule 4 (program)
+    PLUS      [reduce using rule 5 (expression)]
+    MINUS     reduce using rule 4 (program)
+    MINUS     [reduce using rule 5 (expression)]
+    MULTIPLY  reduce using rule 4 (program)
+    MULTIPLY  [reduce using rule 5 (expression)]
+    DIVIDE    reduce using rule 4 (program)
+    DIVIDE    [reduce using rule 5 (expression)]
+    '\n'      reduce using rule 4 (program)
+    '\n'      [reduce using rule 5 (expression)]
+    $default  reduce using rule 4 (program)
+
+    program     go to state 1
+    expression  go to state 2
+
+
+State 1
+
+    0 $accept: program • $end
+    2 program: program • expression '\n'
+    3        | program • '\n'
+
+    $end  shift, and go to state 3
+    '\n'  shift, and go to state 4
+
+    '\n'      [reduce using rule 5 (expression)]
+    $default  reduce using rule 5 (expression)
+
+    expression  go to state 5
+
+
+State 2
+
+    1 program: expression • '\n'
+    6 expression: expression • NUMBER
+    7           | expression • PLUS
+    8           | expression • MINUS
+    9           | expression • MULTIPLY
+   10           | expression • DIVIDE
+
+    NUMBER    shift, and go to state 6
+    PLUS      shift, and go to state 7
+    MINUS     shift, and go to state 8
+    MULTIPLY  shift, and go to state 9
+    DIVIDE    shift, and go to state 10
+    '\n'      shift, and go to state 11
+
+
+State 3
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 4
+
+    3 program: program '\n' •
+
+    $default  reduce using rule 3 (program)
+
+
+State 5
+
+    2 program: program expression • '\n'
+    6 expression: expression • NUMBER
+    7           | expression • PLUS
+    8           | expression • MINUS
+    9           | expression • MULTIPLY
+   10           | expression • DIVIDE
+
+    NUMBER    shift, and go to state 6
+    PLUS      shift, and go to state 7
+    MINUS     shift, and go to state 8
+    MULTIPLY  shift, and go to state 9
+    DIVIDE    shift, and go to state 10
+    '\n'      shift, and go to state 12
+
+
+State 6
+
+    6 expression: expression NUMBER •
+
+    $default  reduce using rule 6 (expression)
+
+
+State 7
+
+    7 expression: expression PLUS •
+
+    $default  reduce using rule 7 (expression)
+
+
+State 8
+
+    8 expression: expression MINUS •
+
+    $default  reduce using rule 8 (expression)
+
+
+State 9
+
+    9 expression: expression MULTIPLY •
+
+    $default  reduce using rule 9 (expression)
+
+
+State 10
+
+   10 expression: expression DIVIDE •
+
+    $default  reduce using rule 10 (expression)
+
+
+State 11
+
+    1 program: expression '\n' •
+
+    $default  reduce using rule 1 (program)
+
+
+State 12
+
+    2 program: program expression '\n' •
+
+    $default  reduce using rule 2 (program)

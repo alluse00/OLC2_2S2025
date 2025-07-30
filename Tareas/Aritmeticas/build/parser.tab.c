@@ -71,13 +71,35 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-/* Prototipo del scanner */
+/* Declaraciones de funciones */
 extern int yylex(void);
-/* yyerror con firma estándar */
 void yyerror(const char *s);
 
-#line 81 "build/parser.tab.c"
+/* Estructura para la pila de expresiones */
+typedef struct {
+    char *expr;      /* Expresión en formato string */
+    int precedence;  /* Precedencia del operador principal */
+} ExprNode;
+
+/* Pila de expresiones */
+#define MAX_STACK_SIZE 100
+ExprNode stack[MAX_STACK_SIZE];
+int stack_top = -1;
+
+/* Funciones para manejo de pila */
+void push_number(int num);
+void push_expression(char *expr, int prec);
+ExprNode pop_expression();
+int is_empty();
+char* create_infix_expression(ExprNode left, ExprNode right, char op, int op_prec);
+
+/* Precedencias de operadores */
+#define PREC_ADD_SUB 1
+#define PREC_MUL_DIV 2
+
+#line 103 "build/parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -109,17 +131,14 @@ enum yysymbol_kind_t
   YYSYMBOL_YYerror = 1,                    /* error  */
   YYSYMBOL_YYUNDEF = 2,                    /* "invalid token"  */
   YYSYMBOL_NUMBER = 3,                     /* NUMBER  */
-  YYSYMBOL_4_ = 4,                         /* '+'  */
-  YYSYMBOL_5_ = 5,                         /* '-'  */
-  YYSYMBOL_6_ = 6,                         /* '*'  */
-  YYSYMBOL_7_ = 7,                         /* '/'  */
+  YYSYMBOL_PLUS = 4,                       /* PLUS  */
+  YYSYMBOL_MINUS = 5,                      /* MINUS  */
+  YYSYMBOL_MULTIPLY = 6,                   /* MULTIPLY  */
+  YYSYMBOL_DIVIDE = 7,                     /* DIVIDE  */
   YYSYMBOL_8_n_ = 8,                       /* '\n'  */
-  YYSYMBOL_9_ = 9,                         /* '('  */
-  YYSYMBOL_10_ = 10,                       /* ')'  */
-  YYSYMBOL_YYACCEPT = 11,                  /* $accept  */
-  YYSYMBOL_input = 12,                     /* input  */
-  YYSYMBOL_line = 13,                      /* line  */
-  YYSYMBOL_expr = 14                       /* expr  */
+  YYSYMBOL_YYACCEPT = 9,                   /* $accept  */
+  YYSYMBOL_program = 10,                   /* program  */
+  YYSYMBOL_expression = 11                 /* expression  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -448,21 +467,21 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  2
+#define YYFINAL  3
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   21
+#define YYLAST   15
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  11
+#define YYNTOKENS  9
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  4
+#define YYNNTS  3
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  10
+#define YYNRULES  11
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  17
+#define YYNSTATES  13
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   258
+#define YYMAXUTOK   262
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -480,7 +499,6 @@ static const yytype_int8 yytranslate[] =
        8,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       9,    10,     6,     4,     2,     5,     2,     7,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -501,15 +519,17 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     3
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
+       5,     6,     7
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    32,    32,    34,    38,    39,    40,    44,    45,    46,
-      47
+       0,    48,    48,    62,    76,    79,    84,    86,    89,   101,
+     113,   125
 };
 #endif
 
@@ -525,8 +545,9 @@ static const char *yysymbol_name (yysymbol_kind_t yysymbol) YY_ATTRIBUTE_UNUSED;
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "\"end of file\"", "error", "\"invalid token\"", "NUMBER", "'+'", "'-'",
-  "'*'", "'/'", "'\\n'", "'('", "')'", "$accept", "input", "line", "expr", YY_NULLPTR
+  "\"end of file\"", "error", "\"invalid token\"", "NUMBER", "PLUS",
+  "MINUS", "MULTIPLY", "DIVIDE", "'\\n'", "$accept", "program",
+  "expression", YY_NULLPTR
 };
 
 static const char *
@@ -536,7 +557,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-7)
+#define YYPACT_NINF (-3)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -550,8 +571,8 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -7,     0,    -7,    -6,    -7,    -7,     3,    -7,    13,    -7,
-       1,     3,     3,    -7,    -7,    -2,    -7
+      -3,     0,    -2,    -3,    -3,     6,    -3,    -3,    -3,    -3,
+      -3,    -3,    -3
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -559,20 +580,20 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       2,     0,     1,     0,    10,     4,     0,     3,     0,     6,
-       0,     0,     0,     5,     9,     7,     8
+       5,     6,     0,     1,     4,     0,     7,     8,     9,    10,
+      11,     2,     3
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -7,    -7,    -7,     4
+      -3,    -3,    14
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     1,     7,     8
+       0,     1,     2
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -580,38 +601,36 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       2,     3,     9,     4,    12,    11,     4,    12,     5,     6,
-      10,    14,     6,     0,     0,    15,    16,    11,     0,    12,
-       0,    13
+       3,     6,     7,     8,     9,    10,    11,     0,     4,     6,
+       7,     8,     9,    10,    12,     5
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,     1,     8,     3,     6,     4,     3,     6,     8,     9,
-       6,    10,     9,    -1,    -1,    11,    12,     4,    -1,     6,
-      -1,     8
+       0,     3,     4,     5,     6,     7,     8,    -1,     8,     3,
+       4,     5,     6,     7,     8,     1
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    12,     0,     1,     3,     8,     9,    13,    14,     8,
-      14,     4,     6,     8,    10,    14,    14
+       0,    10,    11,     0,     8,    11,     3,     4,     5,     6,
+       7,     8,     8
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    11,    12,    12,    13,    13,    13,    14,    14,    14,
-      14
+       0,     9,    10,    10,    10,    10,    11,    11,    11,    11,
+      11,    11
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     0,     2,     1,     2,     2,     3,     3,     3,
-       1
+       0,     2,     2,     3,     2,     0,     0,     2,     2,     2,
+       2,     2
 };
 
 
@@ -1187,44 +1206,138 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 5: /* line: expr '\n'  */
-#line 39 "src/parser.y"
-                { printf("= %d\n", (yyvsp[-1].num)); }
-#line 1194 "build/parser.tab.c"
+  case 2: /* program: expression '\n'  */
+#line 48 "src/parser.y"
+                    {
+        if (stack_top == 0) {
+            printf("= %s\n> ", stack[0].expr);
+            free(stack[0].expr);
+            stack_top = -1;
+        } else {
+            fprintf(stderr, "Error: expresión postfija inválida\n> ");
+            /* Limpiar pila */
+            while (stack_top >= 0) {
+                free(stack[stack_top].expr);
+                stack_top--;
+            }
+        }
+    }
+#line 1226 "build/parser.tab.c"
     break;
 
-  case 6: /* line: error '\n'  */
-#line 40 "src/parser.y"
-                { yyerrok; }
-#line 1200 "build/parser.tab.c"
+  case 3: /* program: program expression '\n'  */
+#line 62 "src/parser.y"
+                              {
+        if (stack_top == 0) {
+            printf("= %s\n> ", stack[0].expr);
+            free(stack[0].expr);
+            stack_top = -1;
+        } else {
+            fprintf(stderr, "Error: expresión postfija inválida\n> ");
+            /* Limpiar pila */
+            while (stack_top >= 0) {
+                free(stack[stack_top].expr);
+                stack_top--;
+            }
+        }
+    }
+#line 1245 "build/parser.tab.c"
     break;
 
-  case 7: /* expr: expr '+' expr  */
-#line 44 "src/parser.y"
-                    { (yyval.num) = (yyvsp[-2].num) + (yyvsp[0].num); }
-#line 1206 "build/parser.tab.c"
+  case 4: /* program: program '\n'  */
+#line 76 "src/parser.y"
+                   {
+        printf("> ");
+    }
+#line 1253 "build/parser.tab.c"
     break;
 
-  case 8: /* expr: expr '*' expr  */
-#line 45 "src/parser.y"
-                    { (yyval.num) = (yyvsp[-2].num) * (yyvsp[0].num); }
-#line 1212 "build/parser.tab.c"
+  case 5: /* program: %empty  */
+#line 79 "src/parser.y"
+                   {
+        /* Al inicio del programa */
+    }
+#line 1261 "build/parser.tab.c"
     break;
 
-  case 9: /* expr: '(' expr ')'  */
-#line 46 "src/parser.y"
-                    { (yyval.num) = (yyvsp[-1].num); }
-#line 1218 "build/parser.tab.c"
+  case 7: /* expression: expression NUMBER  */
+#line 86 "src/parser.y"
+                        {
+        push_number((yyvsp[0].num));
+    }
+#line 1269 "build/parser.tab.c"
     break;
 
-  case 10: /* expr: NUMBER  */
-#line 47 "src/parser.y"
-                    { (yyval.num) = (yyvsp[0].num); }
-#line 1224 "build/parser.tab.c"
+  case 8: /* expression: expression PLUS  */
+#line 89 "src/parser.y"
+                      {
+        if (stack_top < 1) {
+            yyerror("Operador + requiere dos operandos");
+            YYERROR;
+        }
+        ExprNode right = pop_expression();
+        ExprNode left = pop_expression();
+        char *result = create_infix_expression(left, right, '+', PREC_ADD_SUB);
+        push_expression(result, PREC_ADD_SUB);
+        free(left.expr);
+        free(right.expr);
+    }
+#line 1286 "build/parser.tab.c"
+    break;
+
+  case 9: /* expression: expression MINUS  */
+#line 101 "src/parser.y"
+                       {
+        if (stack_top < 1) {
+            yyerror("Operador - requiere dos operandos");
+            YYERROR;
+        }
+        ExprNode right = pop_expression();
+        ExprNode left = pop_expression();
+        char *result = create_infix_expression(left, right, '-', PREC_ADD_SUB);
+        push_expression(result, PREC_ADD_SUB);
+        free(left.expr);
+        free(right.expr);
+    }
+#line 1303 "build/parser.tab.c"
+    break;
+
+  case 10: /* expression: expression MULTIPLY  */
+#line 113 "src/parser.y"
+                          {
+        if (stack_top < 1) {
+            yyerror("Operador * requiere dos operandos");
+            YYERROR;
+        }
+        ExprNode right = pop_expression();
+        ExprNode left = pop_expression();
+        char *result = create_infix_expression(left, right, '*', PREC_MUL_DIV);
+        push_expression(result, PREC_MUL_DIV);
+        free(left.expr);
+        free(right.expr);
+    }
+#line 1320 "build/parser.tab.c"
+    break;
+
+  case 11: /* expression: expression DIVIDE  */
+#line 125 "src/parser.y"
+                        {
+        if (stack_top < 1) {
+            yyerror("Operador / requiere dos operandos");
+            YYERROR;
+        }
+        ExprNode right = pop_expression();
+        ExprNode left = pop_expression();
+        char *result = create_infix_expression(left, right, '/', PREC_MUL_DIV);
+        push_expression(result, PREC_MUL_DIV);
+        free(left.expr);
+        free(right.expr);
+    }
+#line 1337 "build/parser.tab.c"
     break;
 
 
-#line 1228 "build/parser.tab.c"
+#line 1341 "build/parser.tab.c"
 
       default: break;
     }
@@ -1422,14 +1535,71 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 49 "src/parser.y"
+#line 139 "src/parser.y"
 
 
-/* definición de yyerror, usa el yylloc global para ubicación */
 void yyerror(const char *s) {
-    fprintf(stderr,
-            "%s en %d:%d\n",
-            s,
-            yylloc.first_line,
-            yylloc.first_column);
+    fprintf(stderr, "Error en línea %d, columna %d: %s\n", 
+            yylloc.first_line, yylloc.first_column, s);
+}
+
+/* Función para empujar un número a la pila */
+void push_number(int num) {
+    if (stack_top >= MAX_STACK_SIZE - 1) {
+        fprintf(stderr, "Error: desbordamiento de pila\n");
+        exit(1);
+    }
+    stack_top++;
+    stack[stack_top].expr = malloc(20);
+    sprintf(stack[stack_top].expr, "%d", num);
+    stack[stack_top].precedence = 999; /* Los números tienen precedencia máxima */
+}
+
+/* Función para empujar una expresión a la pila */
+void push_expression(char *expr, int prec) {
+    if (stack_top >= MAX_STACK_SIZE - 1) {
+        fprintf(stderr, "Error: desbordamiento de pila\n");
+        exit(1);
+    }
+    stack_top++;
+    stack[stack_top].expr = expr;
+    stack[stack_top].precedence = prec;
+}
+
+/* Función para sacar una expresión de la pila */
+ExprNode pop_expression() {
+    if (stack_top < 0) {
+        fprintf(stderr, "Error: pila vacía\n");
+        exit(1);
+    }
+    return stack[stack_top--];
+}
+
+/* Función para verificar si la pila está vacía */
+int is_empty() {
+    return stack_top < 0;
+}
+
+/* Función para crear expresión infija con paréntesis según precedencia */
+char* create_infix_expression(ExprNode left, ExprNode right, char op, int op_prec) {
+    char *result = malloc(500);
+    char left_expr[250], right_expr[250];
+    
+    /* Determinar si necesitamos paréntesis para el operando izquierdo */
+    if (left.precedence < op_prec) {
+        sprintf(left_expr, "(%s)", left.expr);
+    } else {
+        strcpy(left_expr, left.expr);
+    }
+    
+    /* Determinar si necesitamos paréntesis para el operando derecho */
+    if (right.precedence < op_prec || 
+        (right.precedence == op_prec && (op == '-' || op == '/'))) {
+        sprintf(right_expr, "(%s)", right.expr);
+    } else {
+        strcpy(right_expr, right.expr);
+    }
+    
+    sprintf(result, "%s %c %s", left_expr, op, right_expr);
+    return result;
 }

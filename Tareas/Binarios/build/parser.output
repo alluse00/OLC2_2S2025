@@ -1,0 +1,120 @@
+State 0 conflicts: 2 shift/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: expression '\n'
+    2        | program expression '\n'
+    3        | program '\n'
+    4        | ε
+
+    5 expression: BINARY_NUMBER
+    6           | BINARY_INTEGER_ONLY
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '\n' (10) 1 2 3
+    error (256)
+    BINARY_NUMBER <str> (258) 5
+    BINARY_INTEGER_ONLY <str> (259) 6
+
+
+Nonterminals, with rules where they appear
+
+    $accept (6)
+        on left: 0
+    program (7)
+        on left: 1 2 3 4
+        on right: 0 2 3
+    expression <num> (8)
+        on left: 5 6
+        on right: 1 2
+
+
+State 0
+
+    0 $accept: • program $end
+
+    BINARY_NUMBER        shift, and go to state 1
+    BINARY_INTEGER_ONLY  shift, and go to state 2
+
+    BINARY_NUMBER        [reduce using rule 4 (program)]
+    BINARY_INTEGER_ONLY  [reduce using rule 4 (program)]
+    $default             reduce using rule 4 (program)
+
+    program     go to state 3
+    expression  go to state 4
+
+
+State 1
+
+    5 expression: BINARY_NUMBER •
+
+    $default  reduce using rule 5 (expression)
+
+
+State 2
+
+    6 expression: BINARY_INTEGER_ONLY •
+
+    $default  reduce using rule 6 (expression)
+
+
+State 3
+
+    0 $accept: program • $end
+    2 program: program • expression '\n'
+    3        | program • '\n'
+
+    $end                 shift, and go to state 5
+    BINARY_NUMBER        shift, and go to state 1
+    BINARY_INTEGER_ONLY  shift, and go to state 2
+    '\n'                 shift, and go to state 6
+
+    expression  go to state 7
+
+
+State 4
+
+    1 program: expression • '\n'
+
+    '\n'  shift, and go to state 8
+
+
+State 5
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 6
+
+    3 program: program '\n' •
+
+    $default  reduce using rule 3 (program)
+
+
+State 7
+
+    2 program: program expression • '\n'
+
+    '\n'  shift, and go to state 9
+
+
+State 8
+
+    1 program: expression '\n' •
+
+    $default  reduce using rule 1 (program)
+
+
+State 9
+
+    2 program: program expression '\n' •
+
+    $default  reduce using rule 2 (program)
