@@ -1,0 +1,154 @@
+Rules useless in parser due to conflicts
+
+    5 string: ε
+
+
+State 1 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: ε
+    2        | program string '\n'
+    3        | program '\n'
+
+    4 string: string_content
+    5       | ε
+
+    6 string_content: letters
+
+    7 letters: LETTER_A_TOKEN
+    8        | LETTER_OTHER_TOKEN
+    9        | letters LETTER_A_TOKEN
+   10        | letters LETTER_OTHER_TOKEN
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '\n' (10) 2 3
+    error (256)
+    LETTER_A_TOKEN (258) 7 9
+    LETTER_OTHER_TOKEN (259) 8 10
+
+
+Nonterminals, with rules where they appear
+
+    $accept (6)
+        on left: 0
+    program (7)
+        on left: 1 2 3
+        on right: 0 2 3
+    string <count> (8)
+        on left: 4 5
+        on right: 2
+    string_content <count> (9)
+        on left: 6
+        on right: 4
+    letters <count> (10)
+        on left: 7 8 9 10
+        on right: 6 9 10
+
+
+State 0
+
+    0 $accept: • program $end
+
+    $default  reduce using rule 1 (program)
+
+    program  go to state 1
+
+
+State 1
+
+    0 $accept: program • $end
+    2 program: program • string '\n'
+    3        | program • '\n'
+
+    $end                shift, and go to state 2
+    LETTER_A_TOKEN      shift, and go to state 3
+    LETTER_OTHER_TOKEN  shift, and go to state 4
+    '\n'                shift, and go to state 5
+
+    '\n'  [reduce using rule 5 (string)]
+
+    string          go to state 6
+    string_content  go to state 7
+    letters         go to state 8
+
+
+State 2
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 3
+
+    7 letters: LETTER_A_TOKEN •
+
+    $default  reduce using rule 7 (letters)
+
+
+State 4
+
+    8 letters: LETTER_OTHER_TOKEN •
+
+    $default  reduce using rule 8 (letters)
+
+
+State 5
+
+    3 program: program '\n' •
+
+    $default  reduce using rule 3 (program)
+
+
+State 6
+
+    2 program: program string • '\n'
+
+    '\n'  shift, and go to state 9
+
+
+State 7
+
+    4 string: string_content •
+
+    $default  reduce using rule 4 (string)
+
+
+State 8
+
+    6 string_content: letters •
+    9 letters: letters • LETTER_A_TOKEN
+   10        | letters • LETTER_OTHER_TOKEN
+
+    LETTER_A_TOKEN      shift, and go to state 10
+    LETTER_OTHER_TOKEN  shift, and go to state 11
+
+    $default  reduce using rule 6 (string_content)
+
+
+State 9
+
+    2 program: program string '\n' •
+
+    $default  reduce using rule 2 (program)
+
+
+State 10
+
+    9 letters: letters LETTER_A_TOKEN •
+
+    $default  reduce using rule 9 (letters)
+
+
+State 11
+
+   10 letters: letters LETTER_OTHER_TOKEN •
+
+    $default  reduce using rule 10 (letters)

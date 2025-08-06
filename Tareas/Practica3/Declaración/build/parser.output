@@ -1,0 +1,140 @@
+Grammar
+
+    0 $accept: program $end
+
+    1 program: ε
+    2        | program declaration
+    3        | program '\n'
+
+    4 declaration: type identifier_list SEMICOLON
+
+    5 type: TYPE
+
+    6 identifier_list: IDENTIFIER
+    7                | identifier_list COMMA IDENTIFIER
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '\n' (10) 3
+    error (256)
+    TYPE <str> (258) 5
+    IDENTIFIER <str> (259) 6 7
+    COMMA (260) 7
+    SEMICOLON (261) 4
+
+
+Nonterminals, with rules where they appear
+
+    $accept (8)
+        on left: 0
+    program (9)
+        on left: 1 2 3
+        on right: 0 2 3
+    declaration (10)
+        on left: 4
+        on right: 2
+    type <str> (11)
+        on left: 5
+        on right: 4
+    identifier_list <decl_list> (12)
+        on left: 6 7
+        on right: 4 7
+
+
+State 0
+
+    0 $accept: • program $end
+
+    $default  reduce using rule 1 (program)
+
+    program  go to state 1
+
+
+State 1
+
+    0 $accept: program • $end
+    2 program: program • declaration
+    3        | program • '\n'
+
+    $end  shift, and go to state 2
+    TYPE  shift, and go to state 3
+    '\n'  shift, and go to state 4
+
+    declaration  go to state 5
+    type         go to state 6
+
+
+State 2
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 3
+
+    5 type: TYPE •
+
+    $default  reduce using rule 5 (type)
+
+
+State 4
+
+    3 program: program '\n' •
+
+    $default  reduce using rule 3 (program)
+
+
+State 5
+
+    2 program: program declaration •
+
+    $default  reduce using rule 2 (program)
+
+
+State 6
+
+    4 declaration: type • identifier_list SEMICOLON
+
+    IDENTIFIER  shift, and go to state 7
+
+    identifier_list  go to state 8
+
+
+State 7
+
+    6 identifier_list: IDENTIFIER •
+
+    $default  reduce using rule 6 (identifier_list)
+
+
+State 8
+
+    4 declaration: type identifier_list • SEMICOLON
+    7 identifier_list: identifier_list • COMMA IDENTIFIER
+
+    COMMA      shift, and go to state 9
+    SEMICOLON  shift, and go to state 10
+
+
+State 9
+
+    7 identifier_list: identifier_list COMMA • IDENTIFIER
+
+    IDENTIFIER  shift, and go to state 11
+
+
+State 10
+
+    4 declaration: type identifier_list SEMICOLON •
+
+    $default  reduce using rule 4 (declaration)
+
+
+State 11
+
+    7 identifier_list: identifier_list COMMA IDENTIFIER •
+
+    $default  reduce using rule 7 (identifier_list)

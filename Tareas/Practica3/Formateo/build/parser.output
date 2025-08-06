@@ -1,0 +1,429 @@
+State 36 conflicts: 2 shift/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: ε
+    2        | program statement_sequence '\n'
+    3        | program '\n'
+
+    4 statement_sequence: statement
+    5                   | statement_sequence statement
+
+    6 statement: print_statement
+    7          | if_statement
+
+    8 print_statement: PRINT LPAREN expression RPAREN SEMICOLON
+
+    9 $@1: ε
+
+   10 $@2: ε
+
+   11 if_statement: IF LPAREN condition RPAREN THEN $@1 statement_sequence ELSE $@2 statement_sequence
+
+   12 condition: expression comparison_op expression
+   13          | expression
+
+   14 comparison_op: GT
+   15              | LT
+   16              | EQ
+   17              | GTE
+   18              | LTE
+   19              | EQUAL
+   20              | NOTEQUAL
+
+   21 expression: IDENTIFIER
+   22           | NUMBER
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '\n' (10) 2 3
+    error (256)
+    IDENTIFIER <str> (258) 21
+    NUMBER <str> (259) 22
+    PRINT (260) 8
+    IF (261) 11
+    THEN (262) 11
+    ELSE (263) 11
+    LPAREN (264) 8 11
+    RPAREN (265) 8 11
+    SEMICOLON (266) 8
+    GT (267) 14
+    LT (268) 15
+    EQ (269) 16
+    GTE (270) 17
+    LTE (271) 18
+    EQUAL (272) 19
+    NOTEQUAL (273) 20
+
+
+Nonterminals, with rules where they appear
+
+    $accept (20)
+        on left: 0
+    program (21)
+        on left: 1 2 3
+        on right: 0 2 3
+    statement_sequence (22)
+        on left: 4 5
+        on right: 2 5 11
+    statement (23)
+        on left: 6 7
+        on right: 4 5
+    print_statement (24)
+        on left: 8
+        on right: 6
+    if_statement (25)
+        on left: 11
+        on right: 7
+    $@1 (26)
+        on left: 9
+        on right: 11
+    $@2 (27)
+        on left: 10
+        on right: 11
+    condition <str> (28)
+        on left: 12 13
+        on right: 11
+    comparison_op <str> (29)
+        on left: 14 15 16 17 18 19 20
+        on right: 12
+    expression <str> (30)
+        on left: 21 22
+        on right: 8 12 13
+
+
+State 0
+
+    0 $accept: • program $end
+
+    $default  reduce using rule 1 (program)
+
+    program  go to state 1
+
+
+State 1
+
+    0 $accept: program • $end
+    2 program: program • statement_sequence '\n'
+    3        | program • '\n'
+
+    $end   shift, and go to state 2
+    PRINT  shift, and go to state 3
+    IF     shift, and go to state 4
+    '\n'   shift, and go to state 5
+
+    statement_sequence  go to state 6
+    statement           go to state 7
+    print_statement     go to state 8
+    if_statement        go to state 9
+
+
+State 2
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 3
+
+    8 print_statement: PRINT • LPAREN expression RPAREN SEMICOLON
+
+    LPAREN  shift, and go to state 10
+
+
+State 4
+
+   11 if_statement: IF • LPAREN condition RPAREN THEN $@1 statement_sequence ELSE $@2 statement_sequence
+
+    LPAREN  shift, and go to state 11
+
+
+State 5
+
+    3 program: program '\n' •
+
+    $default  reduce using rule 3 (program)
+
+
+State 6
+
+    2 program: program statement_sequence • '\n'
+    5 statement_sequence: statement_sequence • statement
+
+    PRINT  shift, and go to state 3
+    IF     shift, and go to state 4
+    '\n'   shift, and go to state 12
+
+    statement        go to state 13
+    print_statement  go to state 8
+    if_statement     go to state 9
+
+
+State 7
+
+    4 statement_sequence: statement •
+
+    $default  reduce using rule 4 (statement_sequence)
+
+
+State 8
+
+    6 statement: print_statement •
+
+    $default  reduce using rule 6 (statement)
+
+
+State 9
+
+    7 statement: if_statement •
+
+    $default  reduce using rule 7 (statement)
+
+
+State 10
+
+    8 print_statement: PRINT LPAREN • expression RPAREN SEMICOLON
+
+    IDENTIFIER  shift, and go to state 14
+    NUMBER      shift, and go to state 15
+
+    expression  go to state 16
+
+
+State 11
+
+   11 if_statement: IF LPAREN • condition RPAREN THEN $@1 statement_sequence ELSE $@2 statement_sequence
+
+    IDENTIFIER  shift, and go to state 14
+    NUMBER      shift, and go to state 15
+
+    condition   go to state 17
+    expression  go to state 18
+
+
+State 12
+
+    2 program: program statement_sequence '\n' •
+
+    $default  reduce using rule 2 (program)
+
+
+State 13
+
+    5 statement_sequence: statement_sequence statement •
+
+    $default  reduce using rule 5 (statement_sequence)
+
+
+State 14
+
+   21 expression: IDENTIFIER •
+
+    $default  reduce using rule 21 (expression)
+
+
+State 15
+
+   22 expression: NUMBER •
+
+    $default  reduce using rule 22 (expression)
+
+
+State 16
+
+    8 print_statement: PRINT LPAREN expression • RPAREN SEMICOLON
+
+    RPAREN  shift, and go to state 19
+
+
+State 17
+
+   11 if_statement: IF LPAREN condition • RPAREN THEN $@1 statement_sequence ELSE $@2 statement_sequence
+
+    RPAREN  shift, and go to state 20
+
+
+State 18
+
+   12 condition: expression • comparison_op expression
+   13          | expression •
+
+    GT        shift, and go to state 21
+    LT        shift, and go to state 22
+    EQ        shift, and go to state 23
+    GTE       shift, and go to state 24
+    LTE       shift, and go to state 25
+    EQUAL     shift, and go to state 26
+    NOTEQUAL  shift, and go to state 27
+
+    $default  reduce using rule 13 (condition)
+
+    comparison_op  go to state 28
+
+
+State 19
+
+    8 print_statement: PRINT LPAREN expression RPAREN • SEMICOLON
+
+    SEMICOLON  shift, and go to state 29
+
+
+State 20
+
+   11 if_statement: IF LPAREN condition RPAREN • THEN $@1 statement_sequence ELSE $@2 statement_sequence
+
+    THEN  shift, and go to state 30
+
+
+State 21
+
+   14 comparison_op: GT •
+
+    $default  reduce using rule 14 (comparison_op)
+
+
+State 22
+
+   15 comparison_op: LT •
+
+    $default  reduce using rule 15 (comparison_op)
+
+
+State 23
+
+   16 comparison_op: EQ •
+
+    $default  reduce using rule 16 (comparison_op)
+
+
+State 24
+
+   17 comparison_op: GTE •
+
+    $default  reduce using rule 17 (comparison_op)
+
+
+State 25
+
+   18 comparison_op: LTE •
+
+    $default  reduce using rule 18 (comparison_op)
+
+
+State 26
+
+   19 comparison_op: EQUAL •
+
+    $default  reduce using rule 19 (comparison_op)
+
+
+State 27
+
+   20 comparison_op: NOTEQUAL •
+
+    $default  reduce using rule 20 (comparison_op)
+
+
+State 28
+
+   12 condition: expression comparison_op • expression
+
+    IDENTIFIER  shift, and go to state 14
+    NUMBER      shift, and go to state 15
+
+    expression  go to state 31
+
+
+State 29
+
+    8 print_statement: PRINT LPAREN expression RPAREN SEMICOLON •
+
+    $default  reduce using rule 8 (print_statement)
+
+
+State 30
+
+   11 if_statement: IF LPAREN condition RPAREN THEN • $@1 statement_sequence ELSE $@2 statement_sequence
+
+    $default  reduce using rule 9 ($@1)
+
+    $@1  go to state 32
+
+
+State 31
+
+   12 condition: expression comparison_op expression •
+
+    $default  reduce using rule 12 (condition)
+
+
+State 32
+
+   11 if_statement: IF LPAREN condition RPAREN THEN $@1 • statement_sequence ELSE $@2 statement_sequence
+
+    PRINT  shift, and go to state 3
+    IF     shift, and go to state 4
+
+    statement_sequence  go to state 33
+    statement           go to state 7
+    print_statement     go to state 8
+    if_statement        go to state 9
+
+
+State 33
+
+    5 statement_sequence: statement_sequence • statement
+   11 if_statement: IF LPAREN condition RPAREN THEN $@1 statement_sequence • ELSE $@2 statement_sequence
+
+    PRINT  shift, and go to state 3
+    IF     shift, and go to state 4
+    ELSE   shift, and go to state 34
+
+    statement        go to state 13
+    print_statement  go to state 8
+    if_statement     go to state 9
+
+
+State 34
+
+   11 if_statement: IF LPAREN condition RPAREN THEN $@1 statement_sequence ELSE • $@2 statement_sequence
+
+    $default  reduce using rule 10 ($@2)
+
+    $@2  go to state 35
+
+
+State 35
+
+   11 if_statement: IF LPAREN condition RPAREN THEN $@1 statement_sequence ELSE $@2 • statement_sequence
+
+    PRINT  shift, and go to state 3
+    IF     shift, and go to state 4
+
+    statement_sequence  go to state 36
+    statement           go to state 7
+    print_statement     go to state 8
+    if_statement        go to state 9
+
+
+State 36
+
+    5 statement_sequence: statement_sequence • statement
+   11 if_statement: IF LPAREN condition RPAREN THEN $@1 statement_sequence ELSE $@2 statement_sequence •
+
+    PRINT  shift, and go to state 3
+    IF     shift, and go to state 4
+
+    PRINT     [reduce using rule 11 (if_statement)]
+    IF        [reduce using rule 11 (if_statement)]
+    $default  reduce using rule 11 (if_statement)
+
+    statement        go to state 13
+    print_statement  go to state 8
+    if_statement     go to state 9
